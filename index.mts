@@ -1,6 +1,6 @@
 import type {Context, MiddlewareFn, MiddlewareObj, NextFunction} from "grammy";
 
-export type TranslationResult = string | string[];
+export type TranslationResult = string;
 
 export type LocaleFunction = (variables?: Record<string, any>) => TranslationResult
 
@@ -11,6 +11,8 @@ export type Locale = Record<string, TranslationResult | LocaleFunction>;
 export interface I18nFlavor {
 
     t: TranslateFunction;
+
+    translate: TranslateFunction;
 
 }
 
@@ -25,9 +27,12 @@ export interface i18nOptions {
 export class I18n implements MiddlewareObj<Context & I18nFlavor> {
 
     options = {
-        locales: {},
-        defaultLocale: "en"
-    } as i18nOptions;
+
+        defaultLocale: "en" as string,
+
+        locales: {} as Record<string, Locale>
+
+    }
 
     constructor(options = {} as i18nOptions) {
 
@@ -38,8 +43,8 @@ export class I18n implements MiddlewareObj<Context & I18nFlavor> {
     translate(locale: string, key: string, variables = {} as Record<string, any>): TranslationResult {
 
         const {
-            locales = {},
-            defaultLocale = ""
+            locales,
+            defaultLocale
         } = this.options;
 
         const targetLocale = locales[locale] || locales[defaultLocale] || {};
@@ -58,11 +63,13 @@ export class I18n implements MiddlewareObj<Context & I18nFlavor> {
 
             const {
                 from: {
-                    language_code
+                    language_code = this.options.defaultLocale
                 } = {}
             } = ctx;
 
-            ctx.t = this.translate.bind(this, language_code || "");
+            const translate = this.translate.bind(this, language_code);
+
+            ctx.translate = ctx.t = translate;
 
             return next();
 
