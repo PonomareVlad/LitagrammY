@@ -16,9 +16,9 @@ export interface I18nFlavor {
 
 export interface i18nOptions {
 
-    defaultLocale: string,
+    defaultLocale?: string,
 
-    locales: Record<string, Locale>,
+    locales?: Record<string, Locale>,
 
 }
 
@@ -39,7 +39,7 @@ export class I18n {
 
         const {
             locales = {},
-            defaultLocale
+            defaultLocale = ""
         } = this.options;
 
         const targetLocale = locales[locale] || locales[defaultLocale] || {};
@@ -58,11 +58,11 @@ export class I18n {
 
             const {
                 from: {
-                    language_code = this.options.defaultLocale
+                    language_code
                 } = {}
             } = ctx;
 
-            ctx.t = this.translate.bind(this, language_code);
+            ctx.t = this.translate.bind(this, language_code || "");
 
             return next();
 
