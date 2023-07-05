@@ -1,0 +1,29 @@
+{
+    "license": "MIT",
+    "version": "0.0.1",
+    "main": "index.mjs",
+    "name": "litagrammy",
+    "funding": "https://PonomareVlad.ru/donate",
+    "homepage": "https://github.com/PonomareVlad/LitagrammY#readme",
+    "author": "Vladislav Ponomarev <PonomareVlad@users.noreply.github.com> (https://PonomareVlad.ru)",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/PonomareVlad/LitagrammY.git"
+    },
+    "bugs": {
+        "url": "https://github.com/PonomareVlad/LitagrammY/issues"
+    },
+    "files": [
+        "LICENSE",
+        "index.*",
+        "*.json",
+        "*.md"
+    ],
+    "peerDependencies": {
+        "grammy": "^1.17.1"
+    },
+    "scripts": {
+        "build": "tsc",
+        "prepublishOnly": "npm run build"
+    }
+}
