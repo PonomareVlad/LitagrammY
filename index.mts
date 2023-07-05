@@ -1,4 +1,4 @@
-import type {Context, Middleware, NextFunction} from "grammy";
+import type {Context, MiddlewareFn, MiddlewareObj, NextFunction} from "grammy";
 
 export type TranslationResult = string | string[];
 
@@ -22,7 +22,7 @@ export interface i18nOptions {
 
 }
 
-export class I18n {
+export class I18n implements MiddlewareObj<Context & I18nFlavor> {
 
     options = {
         locales: {},
@@ -52,7 +52,7 @@ export class I18n {
 
     }
 
-    middleware(): Middleware<Context & I18nFlavor> {
+    middleware(): MiddlewareFn<Context & I18nFlavor> {
 
         return async (ctx: Context & I18nFlavor, next: NextFunction): Promise<void> => {
 
