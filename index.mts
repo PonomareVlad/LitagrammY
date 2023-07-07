@@ -1,18 +1,26 @@
-import type {Context, MiddlewareFn, MiddlewareObj, NextFunction} from "grammy";
+// noinspection JSUnusedGlobalSymbols
 
-export type TranslationResult = string;
+import type {Context, MiddlewareObj, NextFunction} from "grammy";
 
-export type LocaleFunction = (variables?: Record<string, any>) => TranslationResult
+export type TranslateFunction = (key: string, variables?: Record<string, any>) => string;
 
-export type TranslateFunction = (key: string, variables?: Record<string, any>) => TranslationResult;
+export interface Locale {
 
-export type Locale = Record<string, TranslationResult | LocaleFunction>;
+    [key: string]: any
 
-export interface I18nFlavor {
+}
 
-    t: TranslateFunction;
+export interface Locales {
 
-    translate: TranslateFunction;
+    [key: string]: Locale
+
+}
+
+export type I18nFlavor<C extends Context> = C & {
+
+    translate: TranslateFunction,
+
+    t: TranslateFunction,
 
 }
 
@@ -20,17 +28,17 @@ export interface i18nOptions {
 
     defaultLocale?: string,
 
-    locales?: Record<string, Locale>,
+    locales?: Locales,
 
 }
 
-export class I18n implements MiddlewareObj<Context & I18nFlavor> {
+export class I18n implements MiddlewareObj<I18nFlavor<Context>> {
 
     options = {
 
         defaultLocale: "en" as string,
 
-        locales: {} as Record<string, Locale>
+        locales: {} as Locales
 
     }
 
@@ -40,26 +48,28 @@ export class I18n implements MiddlewareObj<Context & I18nFlavor> {
 
     }
 
-    translate(locale: string, key: string, variables = {} as Record<string, any>): TranslationResult {
+    translate(locale: string, key: string, variables = {} as Record<string, any>): string {
 
         const {
             locales,
             defaultLocale
         } = this.options;
 
-        const targetLocale = locales[locale] || locales[defaultLocale] || {};
+        const target =
+            locales?.[locale]?.[key] ??
+            locales?.[defaultLocale]?.[key] ?? key
 
-        const target = targetLocale[key] || key;
-
-        return typeof target === "function" ?
-            target(variables) :
-            target;
+        return String(
+            typeof target === "function" ?
+                target(variables) :
+                target
+        ).trim();
 
     }
 
-    middleware(): MiddlewareFn<Context & I18nFlavor> {
+    middleware() {
 
-        return async (ctx: Context & I18nFlavor, next: NextFunction): Promise<void> => {
+        return async <C extends Context>(ctx: I18nFlavor<C>, next: NextFunction): Promise<void> => {
 
             const {
                 from: {
